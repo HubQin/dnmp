@@ -1,0 +1,54 @@
+version: "3"
+services:
+    mysql:
+        image: mysql:latest
+        volumes:
+            - ./log/mysql:/var/log/mysql  # TODO: to be confirm
+            - ./data/mysql:/var/lib/mysql
+            - ./conf/mysql:/etc/mysql
+        networks:
+            - mysql
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=root  # change to your password!
+        command: --default-authentication-plugin=mysql_native_password
+
+    redis:
+        image: redis:latest
+        volumes:
+            - ./data/redis:/data
+            - ./conf/redis:/etc/redis
+        networks:
+            - mysql
+        ports:
+            - "6379:6379"
+    php-fpm73:
+        build: .
+        dockerfile: dockerfiles/Dockerfile.php73
+        volumes:
+            - ../project:/var/www/html
+            - ./conf/php:/usr/local/etc/php
+            - ./conf/supervisor:/etc/supervisor/conf.d
+        networks:
+            - mysql
+            - nginx
+        ports:
+            - "9000:9000"
+
+    nginx:
+        image: nginx:alpine
+        volumes:
+            - ../project:/var/www/html
+            - ./conf/nginx:/etc/nginx
+            - ./log/nginx:/var/log/nignx
+            - ./ssl:/etc/nginx/ssl
+        networks:
+            - nginx
+        ports:
+            - "80:80"
+            - "443:443"
+
+networks:
+    mysql:
+    nginx:
