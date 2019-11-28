@@ -18,14 +18,20 @@ services:
         image: redis:latest
         volumes:
             - ./data/redis:/data
-            - ./conf/redis:/etc/redis
+            - ./conf/redis/redis.conf:/etc/redis/redis.conf
         networks:
             - mysql
         ports:
             - "6379:6379"
+        sysctls:
+            - net.core.somaxconn=1024
+        command: >
+            bash -c "echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf
+            && redis-server /etc/redis/redis.conf --appendonly yes"
     php-fpm73:
-        build: .
-        dockerfile: dockerfiles/Dockerfile.php73
+        build:
+            context: .
+            dockerfile: dockerfiles/Dockerfile.php73
         volumes:
             - ../project:/var/www/html
             - ./conf/php:/usr/local/etc/php
