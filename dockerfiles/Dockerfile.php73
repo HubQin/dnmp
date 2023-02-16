@@ -1,7 +1,7 @@
 FROM php:7.3-fpm
 MAINTAINER Qin <wuhanqinb@gmail.com>
 
-RUN apt-get update -yqq && \
+RUN apt-get update -y && \
     apt-get install -y apt-utils openssl libssl-dev && \
     pecl channel-update pecl.php.net && \
     apt-get install -y git && \
